@@ -21,12 +21,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@main
           
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@main
         with:
-          node-version: '10.x'
+          node-version: '22.x'
 
       - name: npm config registry
         env:
@@ -47,7 +47,7 @@ jobs:
         run: bash ./toolbox/icon_update_script.sh "./node_modules/@fortawesome/fontawesome-pro/svgs/${{ github.event.inputs.iconTypeFA }}/${{ github.event.inputs.iconNameFA }}.svg" "${{ github.event.inputs.fileNameInChromium }}" "${{ github.event.inputs.fillColor }}"
       
       - name: Git Auto Commit
-        uses: stefanzweifel/git-auto-commit-action@v4.11.0
+        uses: stefanzweifel/git-auto-commit-action@master
         with:
           # Commit message
           commit_message: Update ${{ github.event.inputs.fileNameInChromium }} with ${{ github.event.inputs.iconTypeFA }}/${{ github.event.inputs.iconNameFA }} icon
