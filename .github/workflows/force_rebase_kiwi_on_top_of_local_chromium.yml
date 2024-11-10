@@ -1,3 +1,4 @@
+---
 name: 'Kiwi: Force rebase on top of local chromium branch'
 
 on:

@@ -1,3 +1,4 @@
+---
 name: 'Kiwi: Rebase on top of kiwibrowser:chromium branch'
 
 on:
