@@ -63,4 +63,3 @@ jobs:
 
       - name: Displaying download link
         run: echo "Build can be downloaded at https://build.find.kiwi/apks/${{ github.run_id }}/out.apk"
-
