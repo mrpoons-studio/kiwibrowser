@@ -39,8 +39,8 @@ v8_use_external_startup_data = true
 update_android_aar_prebuilts = true
 
 enable_extensions = true
-enable_pdf = false
-enable_plugins = false
+enable_pdf = true
+enable_plugins = true
 
 disable_android_lint = true
 treat_warnings_as_errors = false
