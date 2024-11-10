@@ -45,7 +45,7 @@ jobs:
         run: sudo apt-get update
 
       - name: Installing rclone
-        run: sudo -v ; wget https://downloads.rclone.org/v1.63.1/rclone-v1.63.1-linux-amd64.deb && sudo dpkg -i rclone-v1.63.1-linux-amd64.deb
+        run: sudo -v ; wget -q -nc https://downloads.rclone.org/rclone-current-linux-amd64.deb && sudo dpkg -i rclone-current-linux-amd64.deb
 
       - name: Installing Python and OpenJDK
         run: sudo apt-get install -y 2to3 python2-minimal python2 dh-python python-is-python3 openjdk-8-jdk-headless libncurses5 ccache jq
@@ -59,7 +59,7 @@ jobs:
         run: sudo rm -rf /usr/share/dotnet
 
       - name: Checking-out source-code in $GITHUB_WORKSPACE
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
 
       - name: Creating secondary disk folder on /dev/disk/azure/resource-part1 (SSD)
         run: |
@@ -83,7 +83,7 @@ jobs:
         run: mkdir -p secondary_disk/out/android_${{ matrix.platform }}
 
       - name: Generating one-time APK signature key
-        run: keytool -genkey -v -keystore keystore.jks -alias dev -keyalg RSA -keysize 2048 -validity 10000 -storepass public_password -keypass public_password -dname "cn=Kiwi Browser (unverified), ou=Actions, o=Kiwi Browser, c=GitHub"
+        run: keytool -genkey -v -keystore keystore.jks -alias dev -keyalg ED25519 -keysize 1024 -validity 10000 -storepass public_password -keypass public_password -dname "cn=Kiwi Browser (unverified), ou=Actions, o=Kiwi Browser, c=GitHub"
 
       - name: Copying args.gn to target folder
         run: cat .build/android_arm/args.gn | sed "s#target_cpu = \"arm\"#target_cpu = \"${{ matrix.platform }}\"#" | sed "s#android_default_version_name = \"Git\"#android_default_version_name = \"Git$(date '+%y%m%d')Gen${{ github.run_id }}\"#" > secondary_disk/out/android_${{ matrix.platform }}/args.gn
@@ -124,7 +124,7 @@ jobs:
 
       - name: Calling buildbot
         if: false
-        run: curl ipinfo.io
+        run: curl -sL ipinfo.io
 
       - name: Downloading binary objects cache to $HOME/cache
         run: rclone copy --fast-list --transfers=128 --retries=10 cache:kiwibrowser-next-builds-${{ matrix.platform }}/ $HOME/kiwibrowser-next-builds-${{ matrix.platform }}
@@ -138,7 +138,7 @@ jobs:
           ls -la $HOME/kiwibrowser-next-builds-${{ matrix.platform }}
 
       - name: Uploading APK
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@main
         with:
           name: apk-${{ matrix.platform }}
           path: /home/runner/kiwibrowser-next-builds-${{ matrix.platform }}/
@@ -149,7 +149,7 @@ jobs:
 
     steps:
       - name: Installing rclone
-        run: curl --http1.1 https://rclone.org/install.sh | sudo bash
+        run: curl --http3 https://rclone.org/install.sh | sudo bash
     
       - name: Creating rclone config
         run: |
@@ -162,25 +162,24 @@ jobs:
 
 
       - name: Downloading artifact (arm)
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@main
         with:
           name: apk-arm
 
       - name: Downloading artifact (arm64)
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@main
         with:
           name: apk-arm64
 
       - name: Downloading artifact (x86)
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@main
         with:
           name: apk-x86
 
       - name: Downloading artifact (x64)
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@main
         with:
           name: apk-x64
-
       - name: Prepare release notes
         run: |
           cat ./apk-arm/last_commits.txt > release_notes.txt
@@ -237,7 +236,7 @@ jobs:
 
       - name: Creating release
         id: create_release
-        uses: actions/create-release@v1.1.4
+        uses: actions/create-release@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -264,7 +263,7 @@ jobs:
 
       - name: Uploading release asset (arm-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -275,7 +274,7 @@ jobs:
 
       - name: Uploading release asset (arm64-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -286,7 +285,7 @@ jobs:
 
       - name: Uploading release asset (x86-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -297,7 +296,7 @@ jobs:
 
       - name: Uploading release asset (x64-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -308,7 +307,7 @@ jobs:
 
       - name: Uploading dev asset (arm-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -319,7 +318,7 @@ jobs:
 
       - name: Uploading dev asset (arm64-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -330,7 +329,7 @@ jobs:
 
       - name: Uploading dev asset (x86-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -341,7 +340,7 @@ jobs:
 
       - name: Uploading dev asset (x64-signed)
         if: ${{ github.repository_owner == 'kiwibrowser' }}
-        uses: actions/upload-release-asset@v1
+        uses: actions/upload-release-asset@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
